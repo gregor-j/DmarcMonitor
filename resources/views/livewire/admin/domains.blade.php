@@ -1216,12 +1216,13 @@ new #[Layout('layouts.app')] class extends Component
 
                 <div class="mt-6 space-y-3">
                     @foreach ($dnsRecords as $dnsRecord)
-                        <div class="rounded-md border border-gray-200 dark:border-gray-700 p-3" x-data="{ copied: false }">
+                        <div class="rounded-md border border-gray-200 dark:border-gray-700 p-3" x-data="copyToClipboard"
+                             data-copy-text="{{ $dnsRecord['value'] }}">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ __('TXT record at') }} <span class="font-mono text-gray-700 dark:text-gray-200">{{ $dnsRecord['host'] }}</span>
                                 </div>
-                                <button type="button" x-on:click="navigator.clipboard.writeText(@js($dnsRecord['value'])); copied = true; setTimeout(() => copied = false, 1500)" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
+                                <button type="button" x-on:click="copy" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                                     <span x-show="! copied">{{ __('Copy') }}</span>
                                     <span x-show="copied" x-cloak>{{ __('Copied') }}</span>
                                 </button>
@@ -1252,7 +1253,7 @@ new #[Layout('layouts.app')] class extends Component
     </x-modal>
 
     <x-modal name="spf-editor" maxWidth="2xl" focusable>
-        <div class="p-6" x-init="$watch('show', value => value || $wire.closeSpfEditor())">
+        <div class="p-6" x-data="spfEditor">
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('SPF record for :domain', ['domain' => $spfFqdn]) }}</h2>
 
             @if ($spfDomainId)
@@ -1354,12 +1355,13 @@ new #[Layout('layouts.app')] class extends Component
                     </div>
                 @endif
 
-                <div class="mt-6 rounded-md border border-gray-200 dark:border-gray-700 p-3" x-data="{ copied: false }">
+                <div class="mt-6 rounded-md border border-gray-200 dark:border-gray-700 p-3" x-data="copyToClipboard"
+                     data-copy-text="{{ count($spfStrings) > 1 ? collect($spfStrings)->map(fn ($string) => '"'.$string.'"')->implode(' ') : $spfDraft }}">
                     <div class="flex items-center justify-between gap-3">
                         <div class="text-xs text-gray-500 dark:text-gray-400">
                             {{ __('TXT record at') }} <span class="font-mono text-gray-700 dark:text-gray-200">{{ $spfFqdn }}</span>
                         </div>
-                        <button type="button" x-on:click="navigator.clipboard.writeText(@js(count($spfStrings) > 1 ? collect($spfStrings)->map(fn ($string) => '"'.$string.'"')->implode(' ') : $spfDraft)); copied = true; setTimeout(() => copied = false, 1500)" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
+                        <button type="button" x-on:click="copy" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                             <span x-show="! copied">{{ __('Copy') }}</span>
                             <span x-show="copied" x-cloak>{{ __('Copied') }}</span>
                         </button>

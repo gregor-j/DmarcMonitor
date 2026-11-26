@@ -1,10 +1,15 @@
 import { Chart, LineController, BarController, BarElement, DoughnutController, LineElement, PointElement, ArcElement, LinearScale, CategoryScale, Tooltip, Legend, Filler } from 'chart.js';
-import { Passkeys } from '@laravel/passkeys';
+import { registerAlpineComponents } from './alpine';
+import { registerDashboardCharts } from './dashboard-charts';
 
 Chart.register(LineController, BarController, BarElement, DoughnutController, LineElement, PointElement, ArcElement, LinearScale, CategoryScale, Tooltip, Legend, Filler);
 
 window.Chart = Chart;
-window.Passkeys = Passkeys;
+
+document.addEventListener('alpine:init', () => {
+    registerAlpineComponents(window.Alpine);
+    registerDashboardCharts(window.Alpine, Chart);
+});
 
 /*
  * Installable app. Browsers that support installing (Chrome, Edge) fire

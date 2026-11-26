@@ -86,26 +86,8 @@ new #[Layout('layouts.guest')] class extends Component
     </form>
 
     <div
-        x-data="{
-            loading: false,
-            error: null,
-            supported: false,
-            init() { this.supported = window.Passkeys?.isSupported() ?? false; },
-            async signIn() {
-                this.error = null;
-                this.loading = true;
-                try {
-                    const remember = document.getElementById('remember')?.checked ?? false;
-                    const response = await window.Passkeys.verify({ remember });
-                    window.location.href = response.redirect;
-                } catch (e) {
-                    this.loading = false;
-                    if (e?.name !== 'UserCancelledError') {
-                        this.error = e?.message ?? '{{ __('Unable to sign in with a passkey.') }}';
-                    }
-                }
-            },
-        }"
+        x-data="passkeySignIn"
+        data-error-message="{{ __('Unable to sign in with a passkey.') }}"
         x-show="supported"
         x-cloak
         class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"

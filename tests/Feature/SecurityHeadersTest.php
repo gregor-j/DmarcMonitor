@@ -47,6 +47,20 @@ class SecurityHeadersTest extends TestCase
         $response->assertSee('nonce="'.$matches[1].'"', false);
     }
 
+    public function test_livewire_receives_the_document_nonce_for_client_side_navigation(): void
+    {
+        $response = $this->get('/login')->assertOk();
+        $policy = $response->headers->get('Content-Security-Policy');
+        preg_match("/script-src 'self' 'nonce-([^']+)';/", $policy, $matches);
+
+        $this->assertNotEmpty($matches, 'Expected a nonce-only script policy for inline scripts.');
+        $nonce = preg_quote($matches[1], '/');
+        $this->assertMatchesRegularExpression(
+            '/<style\b(?=[^>]*\bdata-livewire-style\b)(?=[^>]*\bnonce="'.$nonce.'")/',
+            $response->getContent(),
+        );
+    }
+
     public function test_the_csp_is_skipped_in_local_development_since_vite_dev_assets_are_cross_origin(): void
     {
         $this->app->detectEnvironment(fn () => 'local');

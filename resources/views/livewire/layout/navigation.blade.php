@@ -34,16 +34,10 @@ new class extends Component
 }; ?>
 
 <nav
-    x-data="{
-        open: false,
-        dark: localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
-        toggleDark() {
-            this.dark = ! this.dark;
-            localStorage.theme = this.dark ? 'dark' : 'light';
-            document.documentElement.classList.toggle('dark', this.dark);
-            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { dark: this.dark } }));
-        },
-    }"
+    x-data="navigation"
+    data-user-name="{{ auth()->user()->name }}"
+    x-on:profile-updated.window="name = $event.detail.name"
+    x-on:pwa-installable.window="installable = $event.detail"
     wire:poll.60s="$refresh"
     class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
 >
@@ -214,7 +208,7 @@ new class extends Component
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-100 focus:outline-none transition ease-in-out duration-150">
-                            <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                            <div x-text="name">{{ auth()->user()->name }}</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -230,8 +224,8 @@ new class extends Component
                         </x-dropdown-link>
 
                         <!-- Install as an app (shown only when the browser offers it) -->
-                        <div x-data="{ installable: window.pwaInstall?.available() ?? false }" x-on:pwa-installable.window="installable = $event.detail" x-show="installable" x-cloak>
-                            <button type="button" x-on:click="window.pwaInstall.prompt()" class="w-full text-start">
+                        <div x-show="installable" x-cloak>
+                            <button type="button" x-on:click="installApp" class="w-full text-start">
                                 <x-dropdown-link>
                                     {{ __('Install app') }}
                                 </x-dropdown-link>
@@ -387,7 +381,7 @@ new class extends Component
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-700">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-100" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-100" x-text="name">{{ auth()->user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</div>
             </div>
 
@@ -396,8 +390,8 @@ new class extends Component
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
-                <div x-data="{ installable: window.pwaInstall?.available() ?? false }" x-on:pwa-installable.window="installable = $event.detail" x-show="installable" x-cloak>
-                    <button type="button" x-on:click="window.pwaInstall.prompt()" class="w-full text-start">
+                <div x-show="installable" x-cloak>
+                    <button type="button" x-on:click="installApp" class="w-full text-start">
                         <x-responsive-nav-link>
                             {{ __('Install app') }}
                         </x-responsive-nav-link>

@@ -26,71 +26,12 @@
 @endphp
 
 <div
-    x-data="{
-        open: false,
-        search: '',
-        value: '',
-        highlighted: 0,
-        options: @js($items),
-        placeholder: @js($placeholder),
-        get filtered() {
-            const term = this.search.trim().toLowerCase();
-
-            return term === '' ? this.options : this.options.filter((option) => option.label.toLowerCase().includes(term));
-        },
-        get selectedLabel() {
-            const current = String(this.value ?? '');
-            const selected = this.options.find((option) => option.value === current);
-
-            return selected ? selected.label : (this.placeholder ?? '');
-        },
-        isSelected(option) {
-            return option.value === String(this.value ?? '');
-        },
-        toggle() {
-            this.open ? this.close() : this.show();
-        },
-        show() {
-            this.open = true;
-            this.search = '';
-            this.highlighted = Math.max(0, this.filtered.findIndex((option) => this.isSelected(option)));
-            this.$nextTick(() => {
-                this.$refs.search.focus();
-                this.scrollToHighlighted();
-            });
-        },
-        close(refocus = false) {
-            this.open = false;
-            if (refocus) {
-                this.$refs.button.focus();
-            }
-        },
-        choose(option) {
-            this.value = option.value;
-            this.close(true);
-        },
-        chooseHighlighted() {
-            const option = this.filtered[this.highlighted];
-            if (option) {
-                this.choose(option);
-            }
-        },
-        move(step) {
-            const count = this.filtered.length;
-            if (count === 0) {
-                return;
-            }
-            this.highlighted = (this.highlighted + step + count) % count;
-            this.scrollToHighlighted();
-        },
-        scrollToHighlighted() {
-            this.$nextTick(() => this.$refs.list.children[this.highlighted + 1]?.scrollIntoView({ block: 'nearest' }));
-        },
-    }"
+    x-data="searchableSelect"
+    data-options="{{ Illuminate\Support\Js::encode($items) }}"
+    data-placeholder="{{ $placeholder }}"
     x-modelable="value"
-    x-init="$watch('search', () => highlighted = 0)"
     x-on:click.outside="close()"
-    x-on:keydown.escape="if (open) { $event.stopPropagation(); close(true); }"
+    x-on:keydown.escape="escape($event)"
     wire:ignore
     {{ $attributes->except('wire:key')->merge(['class' => 'relative']) }}
     wire:key="{{ $key }}"

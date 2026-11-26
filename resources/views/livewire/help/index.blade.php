@@ -143,21 +143,8 @@ new #[Layout('layouts.app')] class extends Component
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-[100rem] mx-auto sm:px-6 lg:px-8 space-y-6" x-data="{
-            query: '',
-            entries: @js($searchIndex),
-            get results() {
-                const q = this.query.trim().toLowerCase();
-                if (! q) {
-                    return [];
-                }
-                return this.entries.filter(e =>
-                    e.heading.toLowerCase().includes(q) ||
-                    e.topic.toLowerCase().includes(q) ||
-                    e.excerpt.toLowerCase().includes(q)
-                );
-            },
-        }">
+        <div class="max-w-[100rem] mx-auto sm:px-6 lg:px-8 space-y-6" x-data="helpSearch"
+             data-entries="{{ Illuminate\Support\Js::encode($searchIndex) }}">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 space-y-4">
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     {{ __('This is a quick reference for how DmarcMonitor works: the concepts behind email authentication (DMARC, SPF, DKIM), how reports get into the system, and what each screen in this app does.') }}

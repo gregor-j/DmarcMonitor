@@ -242,7 +242,7 @@ new #[Layout('layouts.app')] class extends Component
     }
 }; ?>
 
-<div x-data x-init="@if ($openOnLoad) $nextTick(() => $dispatch('open-modal', 'expected-source-form')) @endif">
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">{{ __('Expected Sources') }}</h2>
     </x-slot>
@@ -323,7 +323,7 @@ new #[Layout('layouts.app')] class extends Component
         </div>
     </div>
 
-    <x-modal name="expected-source-form" max-width="2xl" overflow-visible focusable>
+    <x-modal name="expected-source-form" :show="$openOnLoad" max-width="2xl" overflow-visible focusable>
         <form wire:submit="save" class="p-6">
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                 {{ $editingId ? __('Edit Expected Source') : __('New Expected Source') }}

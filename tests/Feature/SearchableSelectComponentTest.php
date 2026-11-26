@@ -30,6 +30,14 @@ class SearchableSelectComponentTest extends TestCase
         $this->assertStringContainsString('Select organisation', $html);
     }
 
+    public function test_option_labels_round_trip_as_plain_data(): void
+    {
+        $label = 'A "quoted" & <bracketed> label';
+        $html = Blade::render('<x-searchable-select :options="$options" />', ['options' => [1 => $label]]);
+
+        $this->assertSame([['value' => '1', 'label' => $label]], $this->renderedOptions($html));
+    }
+
     public function test_the_wire_key_changes_when_the_options_change(): void
     {
         $template = '<x-searchable-select wire:model="domainId" wire:key="domain-filter" :options="$options" />';
@@ -46,9 +54,10 @@ class SearchableSelectComponentTest extends TestCase
      */
     private function renderedOptions(string $html): array
     {
-        preg_match("/options: JSON\.parse\('(.*?)'\)/", $html, $matches);
+        preg_match('/\bdata-options="([^"]*)"/', $html, $matches);
+        $this->assertNotEmpty($matches, 'Expected searchable select options.');
 
-        return json_decode(json_decode('"'.$matches[1].'"'), true);
+        return json_decode(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'), true, flags: JSON_THROW_ON_ERROR);
     }
 
     private function wireKey(string $html): string

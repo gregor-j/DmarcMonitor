@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
@@ -14,11 +15,10 @@ class SecurityHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Bound before the view renders so the one inline script the layouts
-        // still need (the pre-paint dark-mode toggle) can carry a matching
-        // nonce instead of forcing 'unsafe-inline' onto script-src.
+        // Livewire also reads Vite's nonce when preserving the policy across wire:navigate.
         $nonce = base64_encode(random_bytes(16));
         app()->instance('csp-nonce', $nonce);
+        Vite::useCspNonce($nonce);
 
         /** @var Response $response */
         $response = $next($request);
@@ -45,9 +45,8 @@ class SecurityHeaders
     }
 
     /**
-     * All app JS/CSS is bundled locally via Vite (Chart.js, Alpine/Livewire,
-     * flag-icons) except the bunny.net font, and flag-icons ships its flag
-     * glyphs as data-URI backgrounds inside its CSS — hence img-src data:.
+     * Vite assets and the Livewire CSP bundle are served locally. The Bunny
+     * font is external, and flag-icons uses data URIs in its CSS.
      */
     private function contentSecurityPolicy(string $nonce): string
     {

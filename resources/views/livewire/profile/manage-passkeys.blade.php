@@ -57,32 +57,9 @@ new class extends Component
     @endif
 
     <div
-        x-data="{
-            name: '',
-            loading: false,
-            error: null,
-            supported: false,
-            init() { this.supported = window.Passkeys?.isSupported() ?? false; },
-            async register() {
-                this.error = null;
-                this.loading = true;
-                try {
-                    await window.Passkeys.register({ name: this.name });
-                    this.name = '';
-                    $wire.$refresh();
-                } catch (e) {
-                    if (e?.message === 'Password confirmation required.') {
-                        window.location.href = '{{ route('password.confirm') }}?redirect=' + encodeURIComponent(window.location.pathname);
-                        return;
-                    }
-                    if (e?.name !== 'UserCancelledError') {
-                        this.error = e?.message ?? '{{ __('Unable to register this passkey.') }}';
-                    }
-                } finally {
-                    this.loading = false;
-                }
-            },
-        }"
+        x-data="passkeyRegistration"
+        data-confirm-url="{{ route('password.confirm') }}"
+        data-error-message="{{ __('Unable to register this passkey.') }}"
     >
         <template x-if="!supported">
             <p class="text-sm text-amber-600 dark:text-amber-400">{{ __('Passkeys are not supported in this browser.') }}</p>

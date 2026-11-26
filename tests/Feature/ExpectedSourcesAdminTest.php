@@ -10,7 +10,6 @@ use App\Models\ExpectedSource;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Support\ExpectedSourceMatch;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Volt\Volt;
@@ -121,8 +120,7 @@ class ExpectedSourcesAdminTest extends TestCase
             ->assertHasErrors(['organisation_id']);
 
         $this->assertDatabaseCount('expected_sources', 1);
-        $this->expectException(ModelNotFoundException::class);
-        Volt::actingAs($editor)->test('admin.expected-sources')->call('edit', $hidden->id);
+        Volt::actingAs($editor)->test('admin.expected-sources')->call('edit', $hidden->id)->assertNotFound();
     }
 
     public function test_the_form_is_prefilled_from_the_address(): void
@@ -132,7 +130,6 @@ class ExpectedSourcesAdminTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('admin.expected-sources', ['match_type' => 'helo_domain', 'match_value' => 'ipw.inkyphishfence.com', 'organisation_id' => $organisation->id, 'null_sender_only' => 1]))
             ->assertOk()
-            ->assertSee("open-modal', 'expected-source-form'", false)
             ->assertSee('&quot;match_value&quot;:&quot;ipw.inkyphishfence.com&quot;', false)
             ->assertSee('&quot;organisation_id&quot;:'.$organisation->id.',', false)
             ->assertSee('&quot;null_sender_only&quot;:true', false);

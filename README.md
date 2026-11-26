@@ -114,6 +114,16 @@ docker buildx build --platform linux/amd64 \
   -t burnacid/dmarc-monitor:<version> -t burnacid/dmarc-monitor:latest --push .
 ```
 
+## Browser CSP check
+
+Use a disposable local instance with `APP_ENV=production`, `APP_URL=http://localhost:8080`, `SESSION_SECURE_COOKIE=false`, and freshly built assets. Seed the database with `DatabaseSeeder` and `SampleReportsSeeder` using the development dependencies. Set `CSP_TEST_EMAIL` and `CSP_TEST_PASSWORD` to the seeded administrator's credentials. The check updates that account and registers a virtual passkey, so do not run it against a real instance.
+
+```bash
+npm install --no-save --package-lock=false playwright-core@1.65.1
+npx playwright-core install chromium
+node tests/Browser/csp.cjs http://localhost:8080
+```
+
 ## Environment variables
 
 There is no `.env` file in the image: every setting is a container environment variable. The compose files pass `.env.docker` (created from [.env.docker.example](.env.docker.example)) to the container as its environment. Any other Laravel variable read by the files in [config/](config) works as well. "Image default" is what the image sets when you don't.
